@@ -9,28 +9,49 @@ class GameScene extends Phaser.Scene {
     }
 
     preload(){
+        this.load.image("background","../assets/geek_tower_background.png")
         this.load.image("ground", "../assets/blue-bar.gif");
         this.load.image("groundVertex", "../assets/blue-bar-vertex.gif");
         // this.load.image("geek", "../assets/red-rect.gif");
+        this.load.tilemapCSV('test', "../assets/testMap2.csv");
+        this.load.image('tileset', "../assets/bloczek65.jpg");
+        
+
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
     }
     create(){
-        this.add.image('ground', 200, 200);
-        let platform = this.physics.add.staticGroup();
-        let platform2 = this.physics.add.staticGroup();
-        platform2.create( 687 , 320, "groundVertex" );
-        platform.create( 640 , 685, "ground" );
-        platform.create( 640 , 450, "ground" );
+        let bcg = this.add.image(game.config.width / 2, game.config.height / 2, "background");
+        bcg.setScrollFactor(0, 0);
+
+
+        let map = this.add.tilemap('test', 65, 40, 720, 720);
+        map.addTilesetImage('tileset');
+        let layer = map.createStaticLayer(0, 'tileset');
+        map.setCollision([0], true, layer);
+
+
+
+        //this.add.image('ground', 200, 200);
+        //let platform = this.physics.add.staticGroup();
+        //let platform2 = this.physics.add.staticGroup();
+        //platform.create( 640 , 685, "ground" );
+        //platform.create( 640 , 450, "ground" );
         this.geek = new Geek(this,360,360,"geek");
-        this.physics.add.collider(this.geek, platform);
-        this.physics.add.collider(this.geek, platform2);
+        //this.physics.add.collider(this.geek, platform);
+        this.geek.body.checkCollision.down = true;
         this.geek.body.checkCollision.up = false;
         this.geek.body.checkCollision.left = false;
         this.geek.body.checkCollision.right = false;
         this.geek.body.setBounceX(2);
 
+
+        
+        this.physics.add.collider(this.geek, layer);
+
+
+
         // this.cameras.main.startFollow(this.geek);
-        this.cameras.main.setDeadzone(720, 670);
+        this.cameras.main.setDeadzone(720, 720);
         this.cameras.main.startFollow(this.geek);
         // this.cameras.main.setBounds(0,0,720,2000);
 
