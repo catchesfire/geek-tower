@@ -31,9 +31,15 @@ class Geek extends Phaser.GameObjects.Sprite {
             this.scene.gameOver();
         }
         if(this.body.position.y < 400 && !this.scene.isTimerStarted) {
-            this.scene.addPlatform();
-            this.scene.time.addEvent({loop: true, delay:2533, callback: this.scene.addPlatform, callbackScope:this.scene});
+            //this.scene.addPlatform();
+            //this.scene.time.addEvent({loop: true, delay:2533, callback: this.scene.addPlatform, callbackScope:this.scene});
             this.scene.isTimerStarted = true;
+        }
+
+        this.scene.isTurbo = false;
+
+        if(this.body.position.y < 300 && this.scene.isTimerStarted) {
+            this.scene.isTurbo = true;
         }
         
         //console.log(this.body.velocity.y);
