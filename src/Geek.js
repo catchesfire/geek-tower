@@ -16,28 +16,44 @@ class Geek extends Phaser.GameObjects.Sprite {
         this.tempTime = null;
         this.setScale(0.77);
         this.speedModifierY = 1;
-        this.maxSpeed = 800;
+        this.mass = 80;
+        this.maxSpeed = 600;
         this.currentSpeed= 0;
-        this.jumpSpeed = -1300;
+        this.jumpSpeed = -1000;
         this.isSliding = { left: false, right: false };
         this.isBouncing = { left: false, right: false };
         this.flag = false;
     }
     update(time, delta, cursors) {  
         this.flipX = false;
+
+        if(this.body.position.y >= 720 - this.body.height) {
+            this.scene.gameOver();
+        }
+        if(this.body.position.y < 400 && !this.scene.isTimerStarted) {
+            //this.scene.addPlatform();
+            //this.scene.time.addEvent({loop: true, delay:2533, callback: this.scene.addPlatform, callbackScope:this.scene});
+            this.scene.isTimerStarted = true;
+        }
+
+        this.scene.isTurbo = false;
+
+        if(this.body.position.y < 300 && this.scene.isTimerStarted) {
+            this.scene.isTurbo = true;
+        }
         
         //console.log(this.body.velocity.y);
         let controlStage = 0;
         this.isJumping = false;
         this.isSliding = { left: false, right: false }
         
-        if(cursors.right.isUp && this.body.velocity.x > 0 && this.body.blocked.down){
+        if(cursors.right.isUp && this.body.velocity.x > 0 && this.body.wasTouching.down){
             this.isSliding.right = true;
         }
-        if(cursors.left.isUp && this.body.velocity.x < 0 && this.body.blocked.down){
+        if(cursors.left.isUp && this.body.velocity.x < 0 && this.body.wasTouching.down){
             this.isSliding.left = true;
         }
-        if (!this.body.blocked.down){
+        if (!this.body.wasTouching.down){
             this.isJumping = true;
         }
         if (this.tempTime < time) {
@@ -82,13 +98,13 @@ class Geek extends Phaser.GameObjects.Sprite {
             this.body.setVelocityX(-this.currentSpeed);
         }else{
             if(this.isSliding.left){
-                this.currentSpeed = Math.abs(this.body.velocity.x) - 80;
+                this.currentSpeed = Math.abs(this.body.velocity.x) - 200;
                 if(this.currentSpeed <= 0){
                     this.currentSpeed = 0
                 }
                 this.body.setVelocityX(-this.currentSpeed);
             }else if(this.isSliding.right){
-                this.currentSpeed = Math.abs(this.body.velocity.x) - 80;
+                this.currentSpeed = Math.abs(this.body.velocity.x) - 200;
                 if(this.currentSpeed <= 0){
                     this.currentSpeed = 0
                 }
