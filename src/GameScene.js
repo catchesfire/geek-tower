@@ -7,6 +7,7 @@ class GameScene extends Phaser.Scene {
         this.cursors = null;
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
+        this.platformsCount = 0;
         this.tiles = [];
         this.platformSpeed = 75;
         this.turboModifier = 2;
@@ -60,13 +61,13 @@ class GameScene extends Phaser.Scene {
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
-        this.scene.start('GameScene');
+        this.scene.start('BeginScene');
     }
 
     addFirstPlatform() {
         let tilesNeeded = Math.ceil(720 / this.tileWidth);
         for(let i = 0; i < tilesNeeded; i++) {
-            this.addTile(i*this.tileWidth, 720 - this.tileHeight);
+            this.addTile(i*this.tileWidth, 720 - this.tileHeight / 2);
         }
     }
 
@@ -75,6 +76,8 @@ class GameScene extends Phaser.Scene {
             y = -this.tileHeight;
             this.incrementScore();
         }
+
+        this.platformsCount++;
 
         let directions = ['left', 'right'];
         let randDirection = Math.floor(Math.random() * 100);
@@ -119,18 +122,19 @@ class GameScene extends Phaser.Scene {
         }
 
         
-        if(this.wires.countActive(false) > 0 && hole <= 300) {
+        if(this.wires.countActive(false) > 0 && hole <= 100 && this.platformsCount > 10) {
+            console.log(this.platformsCount);
             let rand = Math.floor(Math.random() * platformLength - 1);
             if(directions[randDirection] == 'left') {
-                this.addWire(rand * this.tileWidth + (this.tileWidth / 2), y - 20);
+                this.addWire(rand * 60 + 30, y - this.tileHeight / 2 - 30);
             } else {
-                this.addWire((tilesNeeded - rand) * this.tileWidth + (this.tileWidth / 2), y - 20);
+                this.addWire((tilesNeeded - rand) * 60 + 30, y - this.tileHeight / 2 - 30);
             }
         }
     }
 
     initPlatforms() {
-        let bottom = 720 - this.tileHeight;
+        let bottom = 720 - this.tileHeight / 2 - this.spacing;
         let top = this.tileHeight;
 
         this.addFirstPlatform();
@@ -163,7 +167,7 @@ class GameScene extends Phaser.Scene {
         
 
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
-        this.load.spritesheet("wire", "../assets/geek_old.png", {frameWidth: 80, frameHeight: 132})
+        this.load.spritesheet("wire", "../assets/wire.png", {frameWidth: 60, frameHeight: 60})
     }
     create(){
         let bcg = this.add.image(game.config.width / 2, game.config.height / 2, "background");
@@ -183,11 +187,13 @@ class GameScene extends Phaser.Scene {
         
         this.platforms.getChildren().forEach((tile) => {
             this.physics.world.enableBody(tile, 0);
+            tile.body.reset(800, 800);
         });
-        
+
         this.wires.getChildren().forEach((wire) => {
             this.physics.world.enableBody(wire, 0);   
-            this.physics.add.collider(wire, this.platforms);         
+            this.physics.add.collider(wire, this.platforms);
+            wire.body.reset(800, 800);
         });
 
 
@@ -209,6 +215,12 @@ class GameScene extends Phaser.Scene {
         //platform.create( 640 , 450, "ground" );
         this.geek = new Geek(this,360,500,"geek");
         this.physics.add.collider(this.geek, this.platforms);
+
+        this.physics.add.overlap(this.geek, this.wires, () => {
+            if(!this.geek.isInvulnerable) {
+                console.log("umarles lol");
+            }
+        });
         
         this.geek.body.checkCollision.down = true;
         this.geek.body.checkCollision.up = false;
@@ -286,6 +298,12 @@ class GameScene extends Phaser.Scene {
                     tile.body.velocity.y = this.platformSpeed * this.turboModifier;
                 } else {
                     tile.body.velocity.y = this.platformSpeed;
+                }
+            });
+
+            this.wires.getChildren().filter((value) => value.active).forEach((wire) => {
+                if(wire.body.position.y >= 720) {
+                    wire.active = false;
                 }
             });
         }

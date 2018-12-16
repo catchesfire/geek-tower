@@ -14,7 +14,16 @@ class BeginScene extends Phaser.Scene {
     }
 
     create() {
-        this.input.keyboard.on('keydown', () => this.scene.start("GameScene"));
+        this.input.keyboard.on('keydown', () => {
+            // var gameScene = this.scene.get('GameScene');
+            // if(gameScene.geek == null) {
+            //     gameScene.scene.restart();
+            // } else {
+            //     gameScene.scene.restart();
+            // }
+            // console.log(gameScene);
+            this.scene.start('GameScene');
+        });
 
         this.add.image(this.game.canvas.width / 2, this.game.canvas.height / 2, "start_background");
         this.text = this.add.image(this.game.canvas.width / 2, this.game.canvas.height * 0.5, "text");

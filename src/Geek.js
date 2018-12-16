@@ -14,6 +14,7 @@ class Geek extends Phaser.GameObjects.Sprite {
 
         this.isJumping = false;
         this.tempTime = null;
+        this.isInvulnerable = false;
         this.setScale(0.77);
         this.speedModifierY = 1;
         this.mass = 80;
