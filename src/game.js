@@ -11,6 +11,7 @@ var config = {
         }
     },
     scene: [
+        BeginScene,
         GameScene
     ],
     pixelArt : true
