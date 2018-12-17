@@ -73,17 +73,13 @@ class GameScene extends Phaser.Scene {
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
-<<<<<<< HEAD
         this.scene.start('EndScene', {score: this.score});
-=======
-        this.scene.start('BeginScene');
         this.scene.stop('GameScene');
 
         this.sound.play("endingsound", {volume: 0.4});
         setTimeout(() => {
             this.sound.stopAll();
         }, 1000);
->>>>>>> origin/feat/adding-tiles
     }
 
     addFirstPlatform() {
@@ -96,11 +92,6 @@ class GameScene extends Phaser.Scene {
     addPlatform(y) {
         if(typeof(y) == 'undefined') {
             y = -this.tileHeight;
-<<<<<<< HEAD
-            this.incrementScore();
-            console.log("inkrementowany "+ this.score)
-=======
->>>>>>> origin/feat/adding-tiles
         }
 
         this.platformsCount++;
@@ -190,9 +181,6 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
         this.load.spritesheet("wire", "../assets/wire.png", {frameWidth: 60, frameHeight: 60});
         this.load.spritesheet("bonus", "../assets/present.png", {frameWidth: 60, frameHeight: 60});
-<<<<<<< HEAD
-        
-=======
 
         this.load.audio("soundtrack", ["../assets/MaxRiven - The Riddle.mp3"]);
         this.load.audio("jumpsound", ["../assets/sfx_movement_jump2.wav"]);
@@ -200,11 +188,11 @@ class GameScene extends Phaser.Scene {
         this.load.audio("endingsound", ["../assets/sfx_sounds_falling12.wav"]);
         this.load.audio("explosionsound", ["../assets/sfx_exp_various1.wav"]);
         this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"])
->>>>>>> origin/feat/adding-tiles
     }
     create(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
+        this.lifeAmount = 3;
         this.platformsCount = 0;
         this.tiles = [];
         this.platformSpeed = 75;
