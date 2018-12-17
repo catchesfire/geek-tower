@@ -13,6 +13,10 @@ class GameScene extends Phaser.Scene {
         this.turboModifier = 2;
     }
 
+    reset() {
+        this.create();
+    }
+
     addWire(x, y) {
         let wire = this.wires.getFirstDead();
         wire.body.reset(x, y);
@@ -68,6 +72,12 @@ class GameScene extends Phaser.Scene {
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
         this.scene.start('BeginScene');
+        this.scene.stop('GameScene');
+
+        this.sound.play("endingsound", {volume: 0.4});
+        setTimeout(() => {
+            this.sound.stopAll();
+        }, 1000);
     }
 
     addFirstPlatform() {
@@ -80,7 +90,6 @@ class GameScene extends Phaser.Scene {
     addPlatform(y) {
         if(typeof(y) == 'undefined') {
             y = -this.tileHeight;
-            this.incrementScore();
         }
 
         this.platformsCount++;
@@ -128,7 +137,7 @@ class GameScene extends Phaser.Scene {
         }
 
         
-        if(this.wires.countActive(false) > 0 && hole <= 100 && this.platformsCount > 10) {
+        if(this.wires.countActive(false) > 0 && hole <= (100 + (this.platformsCount * 0.4)) && this.platformsCount > 10) {
             let rand = Math.floor(Math.random() * platformLength - 1);
             if(directions[randDirection] == 'left') {
                 this.addWire(rand * 60 + 30, y - this.tileHeight / 2 - 30);
@@ -137,7 +146,7 @@ class GameScene extends Phaser.Scene {
             }
         }
 
-        if(this.bonuses.countActive(false) > 0 && hole <= 100 && this.platformsCount > 10) {
+        if(this.bonuses.countActive(false) > 0 && hole <= 60 && this.platformsCount > 10) {
             let rand = Math.floor(Math.random() * platformLength - 1);
             if(directions[randDirection] == 'left') {
                 this.addBonus(rand * 60 + 30, y - this.tileHeight / 2 - 30);
@@ -158,19 +167,6 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    createScore() {
-        let scoreFont = "100px Arial";
-
-        this.scoreLabel = this.add.text((this.world.centerX), 100, "0", {font: scoreFont, fill: "#fff"});
-        this.scoreLabel.anchor.setTo(0.5, 0.5);
-        this.scoreLabel.align = 'center';
-    }
-
-    incrementScore() {
-        this.score += 1;
-        // this.scoreLabel.text = this.score;
-    }
-
     preload(){
         this.load.image("background","../assets/geek_tower_background.png")
         this.load.image("ground", "../assets/blue-bar.gif");
@@ -183,8 +179,26 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
         this.load.spritesheet("wire", "../assets/wire.png", {frameWidth: 60, frameHeight: 60});
         this.load.spritesheet("bonus", "../assets/present.png", {frameWidth: 60, frameHeight: 60});
+
+        this.load.audio("soundtrack", ["../assets/MaxRiven - The Riddle.mp3"]);
+        this.load.audio("jumpsound", ["../assets/sfx_movement_jump2.wav"]);
+        this.load.audio("bouncesound", ["../assets/sfx_movement_jump18.wav"]);
+        this.load.audio("endingsound", ["../assets/sfx_sounds_falling12.wav"]);
+        this.load.audio("explosionsound", ["../assets/sfx_exp_various1.wav"]);
+        this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"])
     }
     create(){
+        this.isTimerStarted = false;
+        this.arePlatformsGone = false;
+        this.platformsCount = 0;
+        this.tiles = [];
+        this.platformSpeed = 75;
+        this.turboModifier = 2;
+        this.sound.play('soundtrack', {
+            volume: 0.25,
+            loop: true
+        });
+
         let bcg = this.add.image(game.config.width / 2, game.config.height / 2, "background");
         bcg.setScrollFactor(0, 0);
 
@@ -248,16 +262,15 @@ class GameScene extends Phaser.Scene {
                 console.log("umarles lol");
                 // wire.setActive(false);
                 this.wires.kill(wire);
+                this.sound.play("explosionsound", {volume: 0.3});
             }
         });
 
         this.physics.add.overlap(this.geek, this.bonuses, (geek, bonus) => {
             this.setInvulnerable = true;
-            // bonus.setActive(false);
-            // this.bonuses.kill(bonus);
             bonus.active = false;
             bonus.body.reset(-200, -200);
-            // this.bonuseset(-200, -200);
+            this.sound.play("bonussound", {volume: 0.3});
         });
         
         this.geek.body.checkCollision.down = true;
@@ -265,6 +278,8 @@ class GameScene extends Phaser.Scene {
         this.geek.body.checkCollision.left = false;
         this.geek.body.checkCollision.right = false;
         this.geek.body.setBounceX(2);
+
+        // this.cameras.main.tint = 0x00800;
 
         
         // this.physics.add.collider(this.geek, layer);
@@ -320,6 +335,7 @@ class GameScene extends Phaser.Scene {
 
         let activePlatforms = this.platforms.getChildren().filter((value) => value.active);
         let activeWires = this.wires.getChildren().filter((value) => value.active);
+        let activeBonuses = this.bonuses.getChildren().filter((value) => value.active);
 
         if(this.setInvulnerable) {
             this.geek.lastTimeInvulnerable = time;
@@ -356,6 +372,12 @@ class GameScene extends Phaser.Scene {
                     wire.active = false;
                 }
             });
+
+            activeBonuses.forEach((bonus) => {
+                if(bonus.body.position.y >= 720) {
+                    bonus.active = false;
+                }
+            });
         }
 
         if(this.needNewPlatform) {
@@ -372,7 +394,7 @@ class GameScene extends Phaser.Scene {
             this.addPlatform(min - this.spacing);
             this.score += 100;
             this.scoreText.setText(`SCORE: ${this.score}`);
-            this.platformSpeed += 1;
+            this.platformSpeed += 1.7;
         }
     }
 }

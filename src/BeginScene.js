@@ -22,6 +22,12 @@ class BeginScene extends Phaser.Scene {
             //     gameScene.scene.restart();
             // }
             // console.log(gameScene);
+            // if(this.scene.isSleeping('GameScene')) {
+            //     console.log(":)");
+            //     this.scene.restart('GameScene');
+            // } else{
+            //     this.scene.start('GameScene');
+            // }
             this.scene.start('GameScene');
         });
 

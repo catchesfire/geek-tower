@@ -30,8 +30,12 @@ class Geek extends Phaser.GameObjects.Sprite {
     update(time, delta, cursors) {  
         this.flipX = false;
 
+        this.alpha = 1;
+
         if(time >= this.lastTimeInvulnerable + 5000) {
             this.isInvulnerable = false;
+        } else {
+            this.alpha = 0.4;
         }
  
         if(this.body.position.y >= 720 - this.body.height) {
@@ -70,10 +74,12 @@ class Geek extends Phaser.GameObjects.Sprite {
             this.speedModifierY = 1;
         }
         if (this.body.blocked.left){
+            this.scene.sound.play("bouncesound", {volume: 0.1});
             this.isBouncing.left = true;
             this.tempTime = time + 10 * delta;
         } 
         if(this.body.blocked.right) {
+            this.scene.sound.play("bouncesound", {volume: 0.1});
             this.isBouncing.right = true;
             this.tempTime = time + 10 * delta;
         }
@@ -136,6 +142,7 @@ class Geek extends Phaser.GameObjects.Sprite {
         if (cursors.up.isDown ){
             if(!this.isJumping ){
                 this.body.setVelocityY(this.jumpSpeed * this.speedModifierY);
+                this.scene.sound.play('jumpsound', {volume: 0.1});
             }
         }
 
