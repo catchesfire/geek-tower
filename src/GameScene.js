@@ -18,6 +18,7 @@ class GameScene extends Phaser.Scene {
         let wire = this.wires.getFirstDead();
         wire.body.reset(x, y);
         wire.active = true;
+        wire.anims.play('wire_fire', true);
     }
 
     addBonus(x, y) {
@@ -68,11 +69,7 @@ class GameScene extends Phaser.Scene {
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
-<<<<<<< HEAD
-        this.scene.start('EndScene');
-=======
-        this.scene.start('BeginScene');
->>>>>>> origin/feat/adding-tiles
+        this.scene.start('EndScene', {score: this.score});
     }
 
     addFirstPlatform() {
@@ -189,6 +186,7 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
         this.load.spritesheet("wire", "../assets/wire.png", {frameWidth: 60, frameHeight: 60});
         this.load.spritesheet("bonus", "../assets/present.png", {frameWidth: 60, frameHeight: 60});
+        
     }
     create(){
         let bcg = this.add.image(game.config.width / 2, game.config.height / 2, "background");
@@ -262,7 +260,7 @@ class GameScene extends Phaser.Scene {
                 console.log(this.lifeAmount)
                 this.setLivesView = true;
                 if(this.lifeAmount == 0){
-                    gameOver();
+                    this.gameOver();
                 }
                 
 
@@ -325,8 +323,13 @@ class GameScene extends Phaser.Scene {
             key : "geek_slide_right",
             frames: this.anims.generateFrameNumbers('geek',{start:8, end:8} ),
             frameRate: 1,
-            repeat: -1
-            
+            repeat: -1            
+        })
+        this.anims.create({
+            key : "wire_fire",
+            frames: this.anims.generateFrameNumbers('wire',{start:0, end:5} ),
+            frameRate: 15,
+            repeat: -1            
         })
 
 

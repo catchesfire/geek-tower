@@ -8,6 +8,10 @@ class EndScene extends Phaser.Scene {
         this.visible = true;
     }
 
+    init(data){
+        this.score = data.score;
+    }
+
     preload() {
         this.load.image("end_background", "../assets/endScreen.jpg");
         this.load.image("text", "../assets/pressBtn.png");
@@ -18,6 +22,9 @@ class EndScene extends Phaser.Scene {
 console.log("KUTAS")
         this.add.image(this.game.canvas.width / 2, this.game.canvas.height / 2, "end_background");
         this.text = this.add.image(this.game.canvas.width / 2, this.game.canvas.height * 0.5, "text");
+
+        this.scoreText = this.add.text(240, 240, 'SCORE: '+this.score, { fontSize: '50px', fill: '#fff' });
+        this.scoreText.setScrollFactor(0, 0);
 
         this.time.addEvent({
             delay: 500,
