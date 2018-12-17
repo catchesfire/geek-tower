@@ -48,10 +48,9 @@ class GameScene extends Phaser.Scene {
         this.scene.start('EndScene', {score: this.score});
         this.scene.stop('GameScene');
 
+        this.sound.pauseAll();
+
         this.sound.play("endingsound", {volume: 0.4});
-        setTimeout(() => {
-            this.sound.stopAll();
-        }, 1000);
     }
 
     addFirstPlatform() {
@@ -84,19 +83,6 @@ class GameScene extends Phaser.Scene {
         } else {
             platformLength = 6;
         }
-
-
-        /*
-            3 - 25%,
-            4 - 30%
-            5 - 35%
-            6 - 10%,
-            +++++++++++
-
-            +++++++
-            +++
-
-        */
 
         randDirection = randDirection < 50 ? 0 : 1;
 
@@ -159,7 +145,7 @@ class GameScene extends Phaser.Scene {
         this.load.audio("bouncesound", ["../assets/sfx_movement_jump18.wav"]);
         this.load.audio("endingsound", ["../assets/sfx_sounds_falling12.wav"]);
         this.load.audio("explosionsound", ["../assets/sfx_exp_various1.wav"]);
-        this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"])
+        this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"]);
     }
     create(){
         this.isTimerStarted = false;
@@ -168,8 +154,14 @@ class GameScene extends Phaser.Scene {
         this.tiles = [];
         this.platformSpeed = 75;
         this.turboModifier = 2;
+        this.lifeAmount = 3;
+
+        this.sound.stopAll();
+
+        this.endingsound = this.sound.add("endingsound");
+        
         this.sound.play('soundtrack', {
-            volume: 0.25,
+            volume: 1,
             loop: true
         });
 

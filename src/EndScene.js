@@ -19,7 +19,6 @@ class EndScene extends Phaser.Scene {
 
     create() {
         this.input.keyboard.on('keydown', () => this.scene.start("GameScene"));
-console.log("KUTAS")
         this.add.image(this.game.canvas.width / 2, this.game.canvas.height / 2, "end_background");
         this.text = this.add.image(this.game.canvas.width / 2, this.game.canvas.height * 0.5, "text");
 
