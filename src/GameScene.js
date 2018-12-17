@@ -145,23 +145,23 @@ class GameScene extends Phaser.Scene {
         this.load.audio("bouncesound", ["../assets/sfx_movement_jump18.wav"]);
         this.load.audio("endingsound", ["../assets/sfx_sounds_falling12.wav"]);
         this.load.audio("explosionsound", ["../assets/sfx_exp_various1.wav"]);
-        this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"]);
+        this.load.audio("bonussound", ["../assets/sfx_sounds_powerup2.wav"])
     }
     create(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
+        this.lifeAmount = 3;
         this.platformsCount = 0;
         this.tiles = [];
         this.platformSpeed = 75;
         this.turboModifier = 2;
-        this.lifeAmount = 3;
 
         this.sound.stopAll();
 
         this.endingsound = this.sound.add("endingsound");
         
         this.sound.play('soundtrack', {
-            volume: 1,
+            volume: 0.8,
             loop: true
         });
 
