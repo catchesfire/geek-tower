@@ -60,7 +60,7 @@ class GameScene extends Phaser.Scene {
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
-        this.scene.start('GameScene');
+        this.scene.start('EndScene');
     }
 
     addFirstPlatform() {
@@ -74,6 +74,7 @@ class GameScene extends Phaser.Scene {
         if(typeof(y) == 'undefined') {
             y = -this.tileHeight;
             this.incrementScore();
+            console.log("inkrementowany "+ this.score)
         }
 
         let directions = ['left', 'right'];
@@ -274,6 +275,7 @@ class GameScene extends Phaser.Scene {
                 });
             }
         }
+        console.log(this.score);
 
         if(this.isTimerStarted) {
             this.platforms.getChildren().filter((value) => value.active).forEach((tile) => {

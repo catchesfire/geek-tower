@@ -12,7 +12,8 @@ var config = {
     },
     scene: [
         BeginScene,
-        GameScene
+        GameScene,
+        EndScene
     ],
     pixelArt : true
 };
