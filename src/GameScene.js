@@ -22,6 +22,7 @@ class GameScene extends Phaser.Scene {
         let wire = this.wires.getFirstDead();
         wire.body.reset(x, y);
         wire.active = true;
+        wire.anims.play('wire_fire', true);
     }
 
     addBonus(x, y) {
@@ -32,9 +33,6 @@ class GameScene extends Phaser.Scene {
 
     addTile(x, y) {
         let tile = this.platforms.getFirstDead();
-        // if(!this.isTimerStarted) {
-        //     this.tiles.push(tile);
-        // }
         tile.body.reset(x, y);
         if(this.isTimerStarted) {
             tile.body.velocity.y = this.platformSpeed;
@@ -42,37 +40,12 @@ class GameScene extends Phaser.Scene {
         tile.body.setAllowGravity(false);
         tile.body.setImmovable(true);
         tile.active = true;
-
-        // tile.checkWorldsBounds = true;
-        //tile.body.setCollideWorldBounds(true);
-
-        // // Turning this on will allow you to listen to the 'worldbounds' event
-        // tile.body.onWorldBounds = true;
-
-        // tile.body.checkCollision.down = true;
-        // tile.body.checkCollision.left = false;
-        // tile.body.checkCollision.right = false;
-        // tile.body.checkCollision.up = false;
-
-        // // 'worldbounds' event listener
-        // tile.body.world.on('worldbounds', function(body) {
-        //     // console.log("DD");
-        //     // Check if the body's game object is the sprite you are listening for
-        //     if (body.gameObject === this) {
-        //     // Stop physics and render updates for this object
-        //     this.setActive(false);
-        //     // this.setVisible(false);
-        //     }
-        // }, tile);
-        // tile.outOfBoundsKill = true;
-
-        // console.log(tile);
     }
 
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
-        this.scene.start('BeginScene');
+        this.scene.start('EndScene', {score: this.score});
         this.scene.stop('GameScene');
 
         this.sound.play("endingsound", {volume: 0.4});
@@ -242,23 +215,8 @@ class GameScene extends Phaser.Scene {
         this.livesText.setText(`LIVES: ${this.lifeAmount}`);
         this.livesText.setScrollFactor(0, 0);
 
-
         this.initPlatforms();
 
-        //this.timer = this.time.addEvent({loop: true, delay:2000, callback: this.addPlatform, callbackScope:this});
-
-        // let map = this.add.tilemap('test', 65, 40, 720, 720);
-        // map.addTilesetImage('tileset');
-        // let layer = map.createStaticLayer(0, 'tileset');
-        // map.setCollision([0], true, layer);
-
-
-
-        //this.add.image('ground', 200, 200);
-        //let platform = this.physics.add.staticGroup();
-        //let platform2 = this.physics.add.staticGroup();
-        //platform.create( 640 , 685, "ground" );
-        //platform.create( 640 , 450, "ground" );
         this.geek = new Geek(this,360,500,"geek");
         this.physics.add.collider(this.geek, this.platforms);
 
@@ -266,12 +224,10 @@ class GameScene extends Phaser.Scene {
             if(!this.geek.isInvulnerable) {
                 wire.active = false;
                 wire.body.reset(-200, -200);
-                console.log("umarles lol");
                 this.lifeAmount--;
-                console.log(this.lifeAmount)
                 this.setLivesView = true;
                 if(this.lifeAmount == 0){
-                    gameOver();
+                    this.gameOver();
                 }
                 this.sound.play("explosionsound", {volume: 0.3});
             }
@@ -290,17 +246,7 @@ class GameScene extends Phaser.Scene {
         this.geek.body.checkCollision.right = false;
         this.geek.body.setBounceX(2);
 
-        // this.cameras.main.tint = 0x00800;
-
-        
-        // this.physics.add.collider(this.geek, layer);
-
-
-
-        // this.cameras.main.startFollow(this.geek);
         this.cameras.main.setDeadzone(720, 720);
-        // this.cameras.main.startFollow(this.geek);
-        // this.cameras.main.setBounds(0,0,720,2000);
 
         this.anims.create({
             key : "geek_walk_right",
@@ -332,8 +278,13 @@ class GameScene extends Phaser.Scene {
             key : "geek_slide_right",
             frames: this.anims.generateFrameNumbers('geek',{start:8, end:8} ),
             frameRate: 1,
-            repeat: -1
-            
+            repeat: -1            
+        })
+        this.anims.create({
+            key : "wire_fire",
+            frames: this.anims.generateFrameNumbers('wire',{start:0, end:5} ),
+            frameRate: 15,
+            repeat: -1            
         })
 
 
@@ -353,8 +304,6 @@ class GameScene extends Phaser.Scene {
             this.geek.isInvulnerable = true;
             this.setInvulnerable = false;
         }
-
-
 
         if(!this.arePlatformsGone) {
             if(this.isTimerStarted) {
@@ -394,8 +343,6 @@ class GameScene extends Phaser.Scene {
         }
 
         if(this.needNewPlatform) {
-            // let x = this.platforms.getChildren().filter((value) => value.body).reduce((last, curr) => Math.min(last, curr.body.position.y));
-            // let tiles = this.platforms.getChildren().filter((value) => value.active);
             let min = activePlatforms[0].body.position.y;
 
             activePlatforms.forEach((tile) => {

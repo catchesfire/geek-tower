@@ -4,7 +4,7 @@ class BeginScene extends Phaser.Scene {
             key: "BeginScene"
         });
 
-        this.text = "XDDDD";
+        this.text = null;
         this.visible = true;
     }
 
