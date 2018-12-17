@@ -37,6 +37,7 @@ class Geek extends Phaser.GameObjects.Sprite {
         } else {
             this.alpha = 0.4;
         }
+
  
         if(this.body.position.y >= 720 - this.body.height) {
             this.scene.gameOver();
