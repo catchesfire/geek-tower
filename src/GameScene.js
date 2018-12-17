@@ -7,15 +7,23 @@ class GameScene extends Phaser.Scene {
         this.cursors = null;
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
+        this.platformsCount = 0;
         this.tiles = [];
         this.platformSpeed = 75;
         this.turboModifier = 2;
+        this.lifeAmount = 3;
     }
 
     addWire(x, y) {
         let wire = this.wires.getFirstDead();
         wire.body.reset(x, y);
         wire.active = true;
+    }
+
+    addBonus(x, y) {
+        let bonus = this.bonuses.getFirstDead();
+        bonus.body.reset(x, y);
+        bonus.active = true;
     }
 
     addTile(x, y) {
@@ -60,13 +68,17 @@ class GameScene extends Phaser.Scene {
     gameOver(){
         this.isTimerStarted = false;
         this.arePlatformsGone = false;
+<<<<<<< HEAD
         this.scene.start('EndScene');
+=======
+        this.scene.start('BeginScene');
+>>>>>>> origin/feat/adding-tiles
     }
 
     addFirstPlatform() {
         let tilesNeeded = Math.ceil(720 / this.tileWidth);
         for(let i = 0; i < tilesNeeded; i++) {
-            this.addTile(i*this.tileWidth, 720 - this.tileHeight);
+            this.addTile(i*this.tileWidth, 720 - this.tileHeight / 2);
         }
     }
 
@@ -76,6 +88,8 @@ class GameScene extends Phaser.Scene {
             this.incrementScore();
             console.log("inkrementowany "+ this.score)
         }
+
+        this.platformsCount++;
 
         let directions = ['left', 'right'];
         let randDirection = Math.floor(Math.random() * 100);
@@ -120,18 +134,27 @@ class GameScene extends Phaser.Scene {
         }
 
         
-        if(this.wires.countActive(false) > 0 && hole <= 300) {
+        if(this.wires.countActive(false) > 0 && hole <= 100 && this.platformsCount > 10) {
             let rand = Math.floor(Math.random() * platformLength - 1);
             if(directions[randDirection] == 'left') {
-                this.addWire(rand * this.tileWidth + (this.tileWidth / 2), y - 20);
+                this.addWire(rand * 60 + 30, y - this.tileHeight / 2 - 30);
             } else {
-                this.addWire((tilesNeeded - rand) * this.tileWidth + (this.tileWidth / 2), y - 20);
+                this.addWire((tilesNeeded - rand) * 60 + 30, y - this.tileHeight / 2 - 30);
+            }
+        }
+
+        if(this.bonuses.countActive(false) > 0 && hole <= 100 && this.platformsCount > 10) {
+            let rand = Math.floor(Math.random() * platformLength - 1);
+            if(directions[randDirection] == 'left') {
+                this.addBonus(rand * 60 + 30, y - this.tileHeight / 2 - 30);
+            } else {
+                this.addBonus((tilesNeeded - rand) * 60 + 30, y - this.tileHeight / 2 - 30);
             }
         }
     }
 
     initPlatforms() {
-        let bottom = 720 - this.tileHeight;
+        let bottom = 720 - this.tileHeight / 2 - this.spacing;
         let top = this.tileHeight;
 
         this.addFirstPlatform();
@@ -164,7 +187,8 @@ class GameScene extends Phaser.Scene {
         
 
         this.load.spritesheet("geek", "../assets/geek.png", {frameWidth: 88, frameHeight: 95});
-        this.load.spritesheet("wire", "../assets/geek_old.png", {frameWidth: 80, frameHeight: 132})
+        this.load.spritesheet("wire", "../assets/wire.png", {frameWidth: 60, frameHeight: 60});
+        this.load.spritesheet("bonus", "../assets/present.png", {frameWidth: 60, frameHeight: 60});
     }
     create(){
         let bcg = this.add.image(game.config.width / 2, game.config.height / 2, "background");
@@ -181,15 +205,33 @@ class GameScene extends Phaser.Scene {
 
         this.platforms = this.add.group();
         this.platforms.createMultiple({key: 'tileset', repeat: 250, active: false});
+
+        this.bonuses = this.add.group();
+        this.bonuses.createMultiple({key: 'bonus', repeat: 3, active: false});
         
         this.platforms.getChildren().forEach((tile) => {
             this.physics.world.enableBody(tile, 0);
+            tile.body.reset(800, 800);
         });
-        
+
         this.wires.getChildren().forEach((wire) => {
             this.physics.world.enableBody(wire, 0);   
-            this.physics.add.collider(wire, this.platforms);         
+            this.physics.add.collider(wire, this.platforms);
+            wire.body.reset(800, 800);
         });
+
+        this.bonuses.getChildren().forEach((bonus) => {
+            this.physics.world.enableBody(bonus, 0);
+            this.physics.add.collider(bonus, this.platforms);
+            bonus.body.reset(800, 800);
+        });
+
+        this.scoreText = this.add.text(500, 20, 'SCORE: 0', { fontSize: '32px', fill: '#fff' });
+        this.scoreText.setScrollFactor(0, 0);
+
+        this.livesText = this.add.text(100, 20, 'LIVES: 3', { fontSize: '32px', fill: '#fff' });
+        this.livesText.setText(`LIVES: ${this.lifeAmount}`);
+        this.livesText.setScrollFactor(0, 0);
 
 
         this.initPlatforms();
@@ -210,6 +252,32 @@ class GameScene extends Phaser.Scene {
         //platform.create( 640 , 450, "ground" );
         this.geek = new Geek(this,360,500,"geek");
         this.physics.add.collider(this.geek, this.platforms);
+
+        this.physics.add.overlap(this.geek, this.wires, (geek, wire) => {
+            if(!this.geek.isInvulnerable) {
+                wire.active = false;
+                wire.body.reset(-200, -200);
+                console.log("umarles lol");
+                this.lifeAmount--;
+                console.log(this.lifeAmount)
+                this.setLivesView = true;
+                if(this.lifeAmount == 0){
+                    gameOver();
+                }
+                
+
+                // wire.setActive(false);
+            }
+        });
+
+        this.physics.add.overlap(this.geek, this.bonuses, (geek, bonus) => {
+            this.setInvulnerable = true;
+            // bonus.setActive(false);
+            // this.bonuses.kill(bonus);
+            bonus.active = false;
+            bonus.body.reset(-200, -200);
+            // this.bonuseset(-200, -200);
+        });
         
         this.geek.body.checkCollision.down = true;
         this.geek.body.checkCollision.up = false;
@@ -268,17 +336,31 @@ class GameScene extends Phaser.Scene {
     update(time, delta){
         this.geek.update(time, delta, this.cursors)
         this.needNewPlatform = false;
+
+        let activePlatforms = this.platforms.getChildren().filter((value) => value.active);
+        let activeWires = this.wires.getChildren().filter((value) => value.active);
+
+        if(this.setInvulnerable) {
+            this.geek.lastTimeInvulnerable = time;
+            this.geek.isInvulnerable = true;
+            this.setInvulnerable = false;
+        }
+
+
+
         if(!this.arePlatformsGone) {
             if(this.isTimerStarted) {
-                this.platforms.getChildren().filter((value) => value.active).forEach((tile) => {
+                activePlatforms.forEach((tile) => {
                     tile.body.velocity.y = this.platformSpeed;
                 });
+                this.arePlatformsGone = true;
+                this.score += 100;
             }
         }
         console.log(this.score);
 
         if(this.isTimerStarted) {
-            this.platforms.getChildren().filter((value) => value.active).forEach((tile) => {
+            activePlatforms.forEach((tile) => {
                 if(tile.body.position.y >= 720) {
                     tile.active = false;
                     this.needNewPlatform = true;
@@ -290,22 +372,34 @@ class GameScene extends Phaser.Scene {
                     tile.body.velocity.y = this.platformSpeed;
                 }
             });
+
+            activeWires.forEach((wire) => {
+                if(wire.body.position.y >= 720) {
+                    wire.active = false;
+                }
+            });
         }
 
         if(this.needNewPlatform) {
             // let x = this.platforms.getChildren().filter((value) => value.body).reduce((last, curr) => Math.min(last, curr.body.position.y));
-            let tiles = this.platforms.getChildren().filter((value) => value.active);
-            let min = tiles[0].body.position.y;
+            // let tiles = this.platforms.getChildren().filter((value) => value.active);
+            let min = activePlatforms[0].body.position.y;
 
-            tiles.forEach((tile) => {
+            activePlatforms.forEach((tile) => {
                 if(tile.body.position.y < min) {
                     min = tile.body.position.y;
                 }
             })
 
             this.addPlatform(min - this.spacing);
-            
+            this.score += 100;
+            this.scoreText.setText(`SCORE: ${this.score}`);
             this.platformSpeed += 1;
+        }
+
+        if(this.setLivesView){
+            this.livesText.setText(`LIVES: ${this.lifeAmount}`);
+            this.setLivesView = false;
         }
     }
 }
