@@ -11,6 +11,7 @@ class GameScene extends Phaser.Scene {
         this.tiles = [];
         this.platformSpeed = 75;
         this.turboModifier = 2;
+        this.lifeAmount = 3;
     }
 
     addWire(x, y) {
@@ -223,6 +224,10 @@ class GameScene extends Phaser.Scene {
         this.scoreText = this.add.text(500, 20, 'SCORE: 0', { fontSize: '32px', fill: '#fff' });
         this.scoreText.setScrollFactor(0, 0);
 
+        this.livesText = this.add.text(100, 20, 'LIVES: 3', { fontSize: '32px', fill: '#fff' });
+        this.livesText.setText(`LIVES: ${this.lifeAmount}`);
+        this.livesText.setScrollFactor(0, 0);
+
 
         this.initPlatforms();
 
@@ -245,9 +250,18 @@ class GameScene extends Phaser.Scene {
 
         this.physics.add.overlap(this.geek, this.wires, (geek, wire) => {
             if(!this.geek.isInvulnerable) {
+                wire.active = false;
+                wire.body.reset(-200, -200);
                 console.log("umarles lol");
+                this.lifeAmount--;
+                console.log(this.lifeAmount)
+                this.setLivesView = true;
+                if(this.lifeAmount == 0){
+                    gameOver();
+                }
+                
+
                 // wire.setActive(false);
-                this.wires.kill(wire);
             }
         });
 
@@ -327,6 +341,8 @@ class GameScene extends Phaser.Scene {
             this.setInvulnerable = false;
         }
 
+
+
         if(!this.arePlatformsGone) {
             if(this.isTimerStarted) {
                 activePlatforms.forEach((tile) => {
@@ -373,6 +389,11 @@ class GameScene extends Phaser.Scene {
             this.score += 100;
             this.scoreText.setText(`SCORE: ${this.score}`);
             this.platformSpeed += 1;
+        }
+
+        if(this.setLivesView){
+            this.livesText.setText(`LIVES: ${this.lifeAmount}`);
+            this.setLivesView = false;
         }
     }
 }

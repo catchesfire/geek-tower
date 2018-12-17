@@ -33,6 +33,7 @@ class Geek extends Phaser.GameObjects.Sprite {
         if(time >= this.lastTimeInvulnerable + 5000) {
             this.isInvulnerable = false;
         }
+
  
         if(this.body.position.y >= 720 - this.body.height) {
             this.scene.gameOver();
